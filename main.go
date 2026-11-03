@@ -9,8 +9,22 @@ import (
 func main() {
 	mux := http.NewServeMux()
 
-	// Serve current directory, generally a bad idea
-	mux.Handle("/", http.FileServer(http.Dir(".")))
+	// Serve files from the root directory as if it was /app/
+	mux.Handle(
+		"/app/",
+		http.StripPrefix(
+			"/app",
+			http.FileServer(http.Dir(".")),
+		),
+	)
+
+	// Readiness endpoint, used by a client to check if this server is ready
+	// to process requests.
+	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("Content-Type", "text/plain; charset=utf-8")
+		w.WriteHeader(200)
+		w.Write([]byte("OK"))
+	})
 
 	server := http.Server{
 		Addr:    ":8080",
