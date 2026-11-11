@@ -33,8 +33,8 @@ func main() {
 		w.WriteHeader(200)
 		w.Write([]byte("OK"))
 	})
-	mux.HandleFunc("/metrics", cfg.getNumberOfRequests())
-	mux.HandleFunc("/reset", cfg.resetMetrics())
+	mux.HandleFunc("/metrics", cfg.getNumberOfRequests)
+	mux.HandleFunc("/reset", cfg.resetMetrics)
 
 	server := http.Server{
 		Addr:    ":8080",
@@ -59,18 +59,14 @@ func (cfg *apiConfig) middlewareMetricsInc(next http.Handler) http.Handler {
 	})
 }
 
-func (cfg *apiConfig) getNumberOfRequests() func(w http.ResponseWriter, r *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Add("Content-Type", "text/plain; charset=utf-8")
-		w.WriteHeader(200)
-		text := fmt.Sprintf("Hits: %d", cfg.fileserverHits.Load())
-		w.Write([]byte(text))
-	}
+func (cfg *apiConfig) getNumberOfRequests(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Content-Type", "text/plain; charset=utf-8")
+	w.WriteHeader(200)
+	text := fmt.Sprintf("Hits: %d", cfg.fileserverHits.Load())
+	w.Write([]byte(text))
 }
 
-func (cfg *apiConfig) resetMetrics() func(w http.ResponseWriter, r *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		cfg.fileserverHits.Store(0)
-		w.WriteHeader(200)
-	}
+func (cfg *apiConfig) resetMetrics(w http.ResponseWriter, r *http.Request) {
+	cfg.fileserverHits.Store(0)
+	w.WriteHeader(200)
 }
