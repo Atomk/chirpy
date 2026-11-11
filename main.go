@@ -28,13 +28,13 @@ func main() {
 
 	// Readiness endpoint, used by a client to check if this server is ready
 	// to process requests.
-	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Content-Type", "text/plain; charset=utf-8")
 		w.WriteHeader(200)
 		w.Write([]byte("OK"))
 	})
-	mux.HandleFunc("/metrics", cfg.getNumberOfRequests)
-	mux.HandleFunc("/reset", cfg.resetMetrics)
+	mux.HandleFunc("GET /metrics", cfg.getNumberOfRequests)
+	mux.HandleFunc("POST /reset", cfg.resetMetrics)
 
 	server := http.Server{
 		Addr:    ":8080",
